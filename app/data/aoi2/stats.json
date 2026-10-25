@@ -1,0 +1,29 @@
+{
+ "dataset": "AOI2 三江并流 90m（缺块已用 SRTM 补齐）",
+ "slope_bins_deg": [
+  0,
+  2,
+  5,
+  8,
+  15,
+  25,
+  35,
+  45,
+  60,
+  90
+ ],
+ "slope_hist_pct": [
+  1.38,
+  1.97,
+  2.98,
+  10.3,
+  24.61,
+  37.08,
+  19.8,
+  1.88,
+  0.01
+ ],
+ "slope_mean_deg": 26.24,
+ "slope_method": "Horn 3x3 + 纬度校正 dx=Δlon*111320*cos(lat), dy=Δlat*110540",
+ "valid_cells": 2592000
+}

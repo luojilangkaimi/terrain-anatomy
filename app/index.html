@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>地形解剖师 · DEM 数字地形分析台</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="基于公开 DEM 的断网可跑数字地形分析台：坡度、水文、流域、剖面、视域、地貌分类与三维沙盘。">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230b0f14'/%3E%3Cpath d='M3 25 L12 10 L18 19 L22 14 L29 25 Z' fill='%2337b6e0'/%3E%3Cpath d='M12 10 L14.5 14 L11 15 Z' fill='%23e8f6fc'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="css/app.css?v=2">
+</head>
+<body>
+
+<!-- 图标库：内联 SVG symbol，断网可用 -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-logo" viewBox="0 0 32 32"><path d="M2 26 L11.5 9 L17.5 18.5 L21.5 13.5 L30 26 Z" fill="currentColor"/><path d="M11.5 9 L14 13.2 L10.4 14.4 Z" fill="#e8f6fc"/><path d="M4 29 H28" stroke="currentColor" stroke-width="1.6" opacity=".5"/></symbol>
+  <symbol id="i-2d" viewBox="0 0 20 20"><rect x="3" y="3" width="14" height="14" rx="2" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M3 12 L8 8 L12 11 L17 7" fill="none" stroke="currentColor" stroke-width="1.6"/></symbol>
+  <symbol id="i-3d" viewBox="0 0 20 20"><path d="M10 2.5 L17 6.3 V13.7 L10 17.5 L3 13.7 V6.3 Z M3 6.3 L10 10 L17 6.3 M10 10 V17.5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></symbol>
+  <symbol id="i-shade" viewBox="0 0 20 20"><path d="M2 16 L8 6 L12 12 L14.5 9 L18 16 Z" fill="currentColor" opacity=".9"/><circle cx="15" cy="5" r="2" fill="currentColor"/></symbol>
+  <symbol id="i-elev" viewBox="0 0 20 20"><rect x="3" y="3" width="14" height="3.5" rx="1" fill="currentColor"/><rect x="3" y="8.2" width="14" height="3.5" rx="1" fill="currentColor" opacity=".7"/><rect x="3" y="13.4" width="14" height="3.5" rx="1" fill="currentColor" opacity=".45"/></symbol>
+  <symbol id="i-slope" viewBox="0 0 20 20"><path d="M3 16 H17 L17 4 Z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M12 16 A5 5 0 0 0 11.2 13.2" fill="none" stroke="currentColor" stroke-width="1.4"/></symbol>
+  <symbol id="i-aspect" viewBox="0 0 20 20"><circle cx="10" cy="10" r="7" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M10 4 L12 10 L10 9 L8 10 Z" fill="currentColor"/><path d="M10 16 L8 10 L10 11 L12 10 Z" fill="currentColor" opacity=".4"/></symbol>
+  <symbol id="i-landform" viewBox="0 0 20 20"><path d="M2 16 L6 11 L9 13 L13 6 L18 16 Z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M2 16 H18" stroke="currentColor" stroke-width="1.5"/><path d="M11 9.5 L13 6 L15 10" fill="currentColor" opacity=".5"/></symbol>
+  <symbol id="i-river" viewBox="0 0 20 20"><path d="M4 3 C6 7 3 9 6 12 C8 14 12 13 13 17" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/><path d="M15 3 C14 7 11 9 11 11.5" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></symbol>
+  <symbol id="i-water" viewBox="0 0 20 20"><path d="M10 3 C13 7.5 15 10 15 12.5 A5 5 0 0 1 5 12.5 C5 10 7 7.5 10 3 Z" fill="currentColor"/></symbol>
+  <symbol id="i-grid" viewBox="0 0 20 20"><path d="M3 7 H17 M3 13 H17 M7 3 V17 M13 3 V17" stroke="currentColor" stroke-width="1.3" stroke-dasharray="2 1.6"/><rect x="3" y="3" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.3"/></symbol>
+  <symbol id="i-query" viewBox="0 0 20 20"><circle cx="9" cy="8" r="4.5" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M9 12.5 V18" stroke="currentColor" stroke-width="1.6"/><path d="M11 14 C13 15 15 14.5 17 16.5" fill="none" stroke="currentColor" stroke-width="1.4" stroke-dasharray="1.6 1.4"/></symbol>
+  <symbol id="i-basin" viewBox="0 0 20 20"><path d="M10 2.5 C14 4 17.5 6.5 16.5 11 C15.6 15 12.5 17.5 10 17.5 C7 17.5 3.5 15 3.4 10.5 C3.3 6 6 3.6 10 2.5 Z" fill="currentColor" opacity=".25" stroke="currentColor" stroke-width="1.5"/><path d="M10 17.5 V11 M10 11 L7 7 M10 11 L13.5 7.5" stroke="currentColor" stroke-width="1.4" fill="none"/></symbol>
+  <symbol id="i-profile" viewBox="0 0 20 20"><path d="M2 15 L6 9 L9 12 L13 5 L18 13" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M2 17.5 H18" stroke="currentColor" stroke-width="1.2" opacity=".6"/></symbol>
+  <symbol id="i-eye" viewBox="0 0 20 20"><path d="M1.8 10 C4.5 5.5 7.2 4.2 10 4.2 C12.8 4.2 15.5 5.5 18.2 10 C15.5 14.5 12.8 15.8 10 15.8 C7.2 15.8 4.5 14.5 1.8 10 Z" fill="none" stroke="currentColor" stroke-width="1.5"/><circle cx="10" cy="10" r="2.6" fill="currentColor"/></symbol>
+  <symbol id="i-clear" viewBox="0 0 20 20"><path d="M5 5 L15 15 M15 5 L5 15" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></symbol>
+  <symbol id="i-export" viewBox="0 0 20 20"><path d="M10 3 V12 M6 8.5 L10 12.5 L14 8.5" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/><path d="M3.5 13.5 V16.5 H16.5 V13.5" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></symbol>
+  <symbol id="i-check" viewBox="0 0 20 20"><path d="M4 10.5 L8.2 14.5 L16 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-plus" viewBox="0 0 20 20"><path d="M10 4 V16 M4 10 H16" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
+  <symbol id="i-minus" viewBox="0 0 20 20"><path d="M4 10 H16" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
+  <symbol id="i-fit" viewBox="0 0 20 20"><path d="M3 7 V3 H7 M13 3 H17 V7 M17 13 V17 H13 M7 17 H3 V13" fill="none" stroke="currentColor" stroke-width="1.6"/></symbol>
+  <symbol id="i-spin" viewBox="0 0 20 20"><path d="M16 10 A6 6 0 1 1 13.5 5.2" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><path d="M13 2.5 L14 5.8 L10.8 6.6" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-peak" viewBox="0 0 20 20"><path d="M2 17 L10 4 L18 17 Z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M8 7.3 L10 4 L12 7.3 L10 8.5 Z" fill="currentColor"/></symbol>
+  <symbol id="i-low" viewBox="0 0 20 20"><path d="M2 4 L10 16 L18 4" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><circle cx="10" cy="15.5" r="1.8" fill="currentColor"/></symbol>
+  <symbol id="i-long" viewBox="0 0 20 20"><path d="M3 4 C8 5 5 10 10 11 C15 12 12 16 17 17" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><circle cx="3" cy="4" r="1.6" fill="currentColor"/><path d="M15 15.5 L17 17 L15 18.5" fill="none" stroke="currentColor" stroke-width="1.4"/></symbol>
+  <symbol id="i-steep" viewBox="0 0 20 20"><path d="M3 4 L8 6 L11 13 L17 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M8 6 L11 13" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" opacity=".5"/></symbol>
+  <symbol id="i-help" viewBox="0 0 20 20"><circle cx="10" cy="10" r="7.5" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M7.8 7.8 A2.3 2.3 0 1 1 10.6 10 C10 10.3 10 10.8 10 11.6" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><circle cx="10" cy="14.2" r="1" fill="currentColor"/></symbol>
+</svg>
+
+<header class="top">
+  <div class="brand">
+    <svg class="logo"><use href="#i-logo"/></svg>
+    <div class="brand-txt"><b>地形解剖师</b><small>DEM 数字地形分析台</small></div>
+  </div>
+
+  <nav class="tabs" role="tablist" aria-label="视图">
+    <button class="tab active" role="tab" aria-selected="true" data-view="2d" title="二维解剖台（T 切换）"><svg><use href="#i-2d"/></svg><span>二维解剖台</span></button>
+    <button class="tab" role="tab" aria-selected="false" data-view="3d" title="三维沙盘（T 切换）"><svg><use href="#i-3d"/></svg><span>三维沙盘</span></button>
+  </nav>
+
+  <div class="aoi-switch" role="radiogroup" aria-label="研究区">
+    <button class="aoi on" role="radio" aria-checked="true" data-aoi="aoi1"><b>AOI1</b><span>云大后山 · 30 m</span></button>
+    <button class="aoi" role="radio" aria-checked="false" data-aoi="aoi2"><b>AOI2</b><span>三江并流 · 90 m</span></button>
+  </div>
+
+  <div class="top-right">
+    <button class="chip" id="chipCheck" title="一键自检（右侧面板）"><svg><use href="#i-check"/></svg><span>自检</span></button>
+    <button class="icon-btn" id="btnHelp" title="快捷键与说明（?）" aria-label="快捷键与说明"><svg><use href="#i-help"/></svg></button>
+    <button class="btn primary" id="btnExport" title="导出出版级地图（E）"><svg><use href="#i-export"/></svg><span>导出地图</span></button>
+  </div>
+</header>
+
+<main class="layout">
+  <aside class="panel left" aria-label="图层与工具">
+    <section class="sec">
+      <h3>图层</h3>
+      <div class="layers" id="layers">
+        <button data-layer="hillshade" class="on" aria-pressed="true" title="晕渲（1）"><svg><use href="#i-shade"/></svg><span>晕渲</span></button>
+        <button data-layer="elevation" aria-pressed="false" title="高程（2）"><svg><use href="#i-elev"/></svg><span>高程</span></button>
+        <button data-layer="slope" aria-pressed="false" disabled title="坡度（3）"><svg><use href="#i-slope"/></svg><span>坡度</span></button>
+        <button data-layer="aspect" aria-pressed="false" disabled title="坡向（4）"><svg><use href="#i-aspect"/></svg><span>坡向</span></button>
+        <button data-layer="landform" aria-pressed="false" disabled title="地貌分类（5）"><svg><use href="#i-landform"/></svg><span>地貌</span></button>
+      </div>
+      <div class="toggles">
+        <label class="tgl" title="河网（按 Strahler 级别着色）"><input type="checkbox" id="tglRiver" checked><i></i><svg><use href="#i-river"/></svg>河网分级</label>
+        <label class="tgl" title="DEM 中连片水平的水面（滇池、水库）"><input type="checkbox" id="tglWater" checked><i></i><svg><use href="#i-water"/></svg>水面</label>
+        <label class="tgl" title="经纬网（G）"><input type="checkbox" id="tglGrid"><i></i><svg><use href="#i-grid"/></svg>经纬网</label>
+      </div>
+    </section>
+
+    <section class="sec">
+      <h3>分析工具 <small id="modeName">查询</small></h3>
+      <div class="tools" id="tools">
+        <button data-mode="query" class="on" aria-pressed="true" title="查询 · 单击看水往哪流（Q）"><svg><use href="#i-query"/></svg><span>水往哪流</span></button>
+        <button data-mode="basin" aria-pressed="false" disabled title="点选划流域（B）"><svg><use href="#i-basin"/></svg><span>划流域</span></button>
+        <button data-mode="profile" aria-pressed="false" disabled title="两点剖面（P）"><svg><use href="#i-profile"/></svg><span>剖面</span></button>
+        <button data-mode="viewshed" aria-pressed="false" disabled title="视域分析（V）"><svg><use href="#i-eye"/></svg><span>视域</span></button>
+      </div>
+      <div class="tool-opt" id="optViewshed" hidden>
+        <label>观察高度 <input type="number" id="obsH" value="1.7" min="0" max="500" step="0.1"> m</label>
+      </div>
+      <button class="btn ghost wide" id="btnClear" title="清除分析结果（C）"><svg><use href="#i-clear"/></svg>清除分析结果</button>
+    </section>
+
+    <section class="sec">
+      <h3>河网阈值 <small id="thrVal">—</small></h3>
+      <input type="range" id="thr" min="1" max="100" value="30" disabled aria-label="河网阈值">
+      <div class="hint" id="thrHint">汇流格数 ≥ 阈值即为河道</div>
+    </section>
+
+    <section class="sec">
+      <h3>坡度直方图 <small>与参考值对照</small></h3>
+      <canvas id="hist" width="520" height="250" aria-label="坡度直方图"></canvas>
+      <div class="hist-key"><span><i class="k-ref"></i>参考 stats.json</span><span><i class="k-live"></i>实时计算</span></div>
+      <div class="hint" id="histHint">—</div>
+    </section>
+
+    <section class="sec">
+      <h3>图例 <small id="legendName">—</small></h3>
+      <div id="legend"></div>
+      <div id="legendOverlay"></div>
+    </section>
+  </aside>
+
+  <section class="stage" aria-label="地图">
+    <canvas id="map"></canvas>
+    <div class="map-ctl">
+      <button id="zoomIn" title="放大（+）" aria-label="放大"><svg><use href="#i-plus"/></svg></button>
+      <button id="zoomOut" title="缩小（−）" aria-label="缩小"><svg><use href="#i-minus"/></svg></button>
+      <button id="btnReset" title="复位（R / 双击）" aria-label="复位视图"><svg><use href="#i-fit"/></svg></button>
+    </div>
+    <div class="north" aria-hidden="true"><svg viewBox="0 0 24 36"><path d="M12 2 L19 26 L12 21 L5 26 Z" fill="#e8eef3"/><path d="M12 2 L12 21 L5 26 Z" fill="#7d8b98"/><text x="12" y="35" text-anchor="middle" font-size="9" font-weight="700" fill="#e8eef3">N</text></svg></div>
+    <div class="scalebar" id="scalebar"><i></i><span>—</span></div>
+    <div class="mode-tip" id="modeTip" aria-live="polite"></div>
+    <div class="statusbar" id="status">移动鼠标查看高程与坡度</div>
+
+    <div class="profilebox" id="profilebox" role="dialog" aria-label="剖面">
+      <div class="pb-head">
+        <b>地形剖面</b><span id="profileStats"></span>
+        <button id="closeProfile" class="icon-btn sm" aria-label="关闭剖面"><svg><use href="#i-clear"/></svg></button>
+      </div>
+      <canvas id="profile"></canvas>
+    </div>
+
+    <div class="loading" id="loading" role="status" aria-live="polite">
+      <div class="ld-card">
+        <div class="ld-title"><span class="spinner"></span><b id="ldTitle">加载中…</b></div>
+        <ol class="ld-steps" id="ldSteps"></ol>
+      </div>
+    </div>
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  </section>
+
+  <aside class="panel right" aria-label="查询与结果">
+    <section class="sec card" id="queryCard">
+      <h3>位置查询 <small id="queryMode">悬停</small></h3>
+      <dl class="kv" id="queryKV"><dt>提示</dt><dd>在地图上移动鼠标</dd></dl>
+    </section>
+
+    <section class="sec card accent" id="resultCard" hidden>
+      <h3 id="resultTitle">分析结果</h3>
+      <div id="resultBody"></div>
+    </section>
+
+    <section class="sec">
+      <h3>兴趣点挑战 <small>点击定位</small></h3>
+      <ul class="poi" id="poiList"><li class="muted">等待水文计算…</li></ul>
+    </section>
+
+    <section class="sec">
+      <h3>一键自检 <button class="link" id="btnCheck">重新运行</button></h3>
+      <dl class="kv check" id="check"></dl>
+    </section>
+
+    <details class="sec" id="infoBox">
+      <summary><h3>数据与口径</h3></summary>
+      <dl class="kv" id="info"></dl>
+      <div class="hint notes">
+        查询、坡度、剖面、流域一律读取 dem.bin 原生值，显示层与分析层分离。<br>
+        坡度：Horn 3×3，像元尺寸按纬度校正。填洼：Priority-Flood + ε；流向：D8。<br>
+        地貌：2 km 窗口起伏度，阈值参照李炳元等（2008）。视域：含地球曲率与大气折射。<br>
+        结论仅限基于公开数据的演示性分析，不构成官方监测评价；本图为示意图，未叠加行政区划。
+      </div>
+    </details>
+  </aside>
+</main>
+
+<div class="view3d" id="view3d">
+  <div class="mount3d" id="mount3d"></div>
+  <div class="tools3d" role="toolbar" aria-label="三维工具">
+    <div class="tg ve">
+      <label for="ve3d">垂直夸大 <b id="veVal">×2</b></label>
+      <input type="range" id="ve3d" min="1" max="6" step="0.5" value="2" list="veTicks">
+      <datalist id="veTicks"><option value="1"></option><option value="2"></option><option value="3"></option><option value="4"></option><option value="5"></option><option value="6"></option></datalist>
+      <div class="ticks"><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span><span>6</span></div>
+    </div>
+    <div class="tg seg" id="views3d" aria-label="视角">
+      <button data-v="default" class="on">斜视</button><button data-v="top">俯视</button><button data-v="nw">西北</button><button data-v="se">东南</button><button data-v="south">低角</button>
+    </div>
+    <div class="tg">
+      <button id="btnSpin" title="自动环绕（空格）"><svg><use href="#i-spin"/></svg>环绕</button>
+      <button id="btnRiver3d" title="叠加河网"><svg><use href="#i-river"/></svg>河网</button>
+    </div>
+    <div class="tg">
+      <label for="drapeSel">表面</label>
+      <select id="drapeSel" title="三维表面贴图">
+        <option value="">高程色带</option>
+        <option value="2d">同步二维图层</option>
+      </select>
+    </div>
+    <div class="tg">
+      <button id="btnPng3d" class="primary" title="导出三维图"><svg><use href="#i-export"/></svg>导出</button>
+      <span class="fps" id="fps3d"></span>
+    </div>
+  </div>
+  <div class="hint3d">左键旋转 · 右键平移 · 滚轮缩放 · 单击划流域 · ←→↑↓ 微调 · 空格环绕</div>
+  <div class="ph" id="ph3d">三维模块未接入</div>
+</div>
+
+<div class="modal" id="helpModal" hidden role="dialog" aria-modal="true" aria-label="快捷键">
+  <div class="modal-card">
+    <div class="modal-head"><b>快捷键与操作</b><button class="icon-btn sm" id="closeHelp" aria-label="关闭"><svg><use href="#i-clear"/></svg></button></div>
+    <div class="keys">
+      <div><kbd>1</kbd>–<kbd>5</kbd> 晕渲 / 高程 / 坡度 / 坡向 / 地貌</div>
+      <div><kbd>Q</kbd> 水往哪流　<kbd>B</kbd> 划流域　<kbd>P</kbd> 剖面　<kbd>V</kbd> 视域</div>
+      <div><kbd>C</kbd> 清除结果　<kbd>G</kbd> 经纬网　<kbd>R</kbd> 复位　<kbd>E</kbd> 导出</div>
+      <div><kbd>T</kbd> 二维 / 三维切换　<kbd>Esc</kbd> 退出当前工具</div>
+      <div>三维：<kbd>←</kbd><kbd>→</kbd> 旋转　<kbd>↑</kbd><kbd>↓</kbd> 俯仰　<kbd>+</kbd><kbd>−</kbd> 缩放　<kbd>空格</kbd> 环绕</div>
+    </div>
+    <p class="hint">单击时按下后位移超过 4 px 会被当作平移。剖面会自动抽 10 个点与 DEM 原生值核对。</p>
+  </div>
+</div>
+
+<script src="lib/three.min.js"></script>
+<script src="js/palette.js?v=2"></script>
+<script src="js/loader.js?v=2"></script>
+<script src="js/terrain.js?v=2"></script>
+<script src="js/hydro.js?v=2"></script>
+<script src="js/orbit.js?v=2"></script>
+<script src="js/render3d.js?v=2"></script>
+<script src="js/render2d.js?v=2"></script>
+<script src="js/ui.js?v=2"></script>
+</body>
+</html>

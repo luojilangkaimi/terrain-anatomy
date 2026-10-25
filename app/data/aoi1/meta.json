@@ -1,0 +1,21 @@
+{
+ "name": "AOI1 云大后山 30m",
+ "width": 1260,
+ "height": 1080,
+ "x0": 102.55,
+ "y0": 25.2,
+ "dx_deg": 0.0002777777777777778,
+ "dy_deg": 0.0002777777777777778,
+ "dx_m": 28.01,
+ "dy_m": 30.71,
+ "cell_area_m2": 860.2,
+ "crs": "EPSG:4326",
+ "nodata": -99999.0,
+ "elev": {
+  "min": 1779.2,
+  "mean": 2026.9,
+  "max": 2519.0
+ },
+ "source": "Copernicus DEM GLO-30/90 (ESA, DOI 10.5270/ESA-c5d3d65)",
+ "note": "行优先，从左上角起，Float32 little-endian"
+}

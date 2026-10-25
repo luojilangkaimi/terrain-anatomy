@@ -2,11 +2,11 @@
 <html lang="zh-CN">
 <head>
 <meta charset="utf-8">
-<title>地形解剖师 · DEM 数字地形分析台</title>
+<title>山体CT · DEM 数字地形分析台</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="description" content="基于公开 DEM 的断网可跑数字地形分析台：坡度、水文、流域、剖面、视域、地貌分类与三维沙盘。">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230b0f14'/%3E%3Cpath d='M3 25 L12 10 L18 19 L22 14 L29 25 Z' fill='%2337b6e0'/%3E%3Cpath d='M12 10 L14.5 14 L11 15 Z' fill='%23e8f6fc'/%3E%3C/svg%3E">
-<link rel="stylesheet" href="css/app.css?v=2">
+<link rel="stylesheet" href="css/app.css?v=4">
 </head>
 <body>
 
@@ -39,12 +39,13 @@
   <symbol id="i-long" viewBox="0 0 20 20"><path d="M3 4 C8 5 5 10 10 11 C15 12 12 16 17 17" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><circle cx="3" cy="4" r="1.6" fill="currentColor"/><path d="M15 15.5 L17 17 L15 18.5" fill="none" stroke="currentColor" stroke-width="1.4"/></symbol>
   <symbol id="i-steep" viewBox="0 0 20 20"><path d="M3 4 L8 6 L11 13 L17 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M8 6 L11 13" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" opacity=".5"/></symbol>
   <symbol id="i-help" viewBox="0 0 20 20"><circle cx="10" cy="10" r="7.5" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M7.8 7.8 A2.3 2.3 0 1 1 10.6 10 C10 10.3 10 10.8 10 11.6" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><circle cx="10" cy="14.2" r="1" fill="currentColor"/></symbol>
+  <symbol id="i-import" viewBox="0 0 20 20"><path d="M10 3.2v7.6M7.2 8.4 10 11.2l2.8-2.8" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><path d="M4 13v2.6c0 .8.6 1.4 1.4 1.4h9.2c.8 0 1.4-.6 1.4-1.4V13" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></symbol>
 </svg>
 
 <header class="top">
   <div class="brand">
     <svg class="logo"><use href="#i-logo"/></svg>
-    <div class="brand-txt"><b>地形解剖师</b><small>DEM 数字地形分析台</small></div>
+    <div class="brand-txt"><b>山体CT</b><small>DEM 数字地形分析台</small></div>
   </div>
 
   <nav class="tabs" role="tablist" aria-label="视图">
@@ -58,6 +59,7 @@
   </div>
 
   <div class="top-right">
+    <button class="chip" id="btnImport" title="导入 DEM（路线图）"><svg><use href="#i-import"/></svg><span>导入</span></button>
     <button class="chip" id="chipCheck" title="一键自检（右侧面板）"><svg><use href="#i-check"/></svg><span>自检</span></button>
     <button class="icon-btn" id="btnHelp" title="快捷键与说明（?）" aria-label="快捷键与说明"><svg><use href="#i-help"/></svg></button>
     <button class="btn primary" id="btnExport" title="导出出版级地图（E）"><svg><use href="#i-export"/></svg><span>导出地图</span></button>
@@ -211,6 +213,27 @@
   <div class="ph" id="ph3d">三维模块未接入</div>
 </div>
 
+<div class="modal" id="importModal" hidden role="dialog" aria-modal="true" aria-label="导入 DEM">
+  <div class="modal-card">
+    <div class="modal-head"><b>导入你自己的 DEM</b><button class="icon-btn sm" id="closeImport" aria-label="关闭"><svg><use href="#i-clear"/></svg></button></div>
+    <p class="imp-lead">当前版本内置两个研究区。让任意一份 30 米 DEM 拖进来就能分析，是我们下一步要做的事。</p>
+
+    <div class="imp-drop">
+      <svg><use href="#i-import"/></svg>
+      <b>拖入 .tif / .geotiff</b>
+      <span>开发中 · 当前版本尚不支持外部数据</span>
+    </div>
+
+    <h4 class="imp-h">路线图</h4>
+    <ol class="imp-road">
+      <li><b>浏览器直读 GeoTIFF</b><span>引入 geotiff.js，在 Worker 中分块解析：不装 GDAL，断网可用。</span></li>
+      <li><b>自动配准与重采样</b><span>读取仿射参数与坐标系，自动推断行列与像元大小，对齐到分析格网。</span></li>
+      <li><b>一次分析，多处复现</b><span>把研究区、参数与图层打包成场景链接，课堂与野外可直接分发。</span></li>
+    </ol>
+    <p class="imp-foot">内置研究区不在路线图范围内：AOI1 / AOI2 始终随包提供，保证断网可用。</p>
+  </div>
+</div>
+
 <div class="modal" id="helpModal" hidden role="dialog" aria-modal="true" aria-label="快捷键">
   <div class="modal-card">
     <div class="modal-head"><b>快捷键与操作</b><button class="icon-btn sm" id="closeHelp" aria-label="关闭"><svg><use href="#i-clear"/></svg></button></div>
@@ -233,6 +256,7 @@
 <script src="js/orbit.js?v=2"></script>
 <script src="js/render3d.js?v=2"></script>
 <script src="js/render2d.js?v=2"></script>
-<script src="js/ui.js?v=2"></script>
+<script src="js/ui.js?v=3"></script>
+<script src="js/import.js?v=1"></script>
 </body>
 </html>

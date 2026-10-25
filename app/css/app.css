@@ -333,3 +333,16 @@ kbd { display: inline-block; min-width: 20px; padding: 1px 6px; margin: 0 2px; t
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation: none !important; transition: none !important; }
 }
+
+/* ===== 导入入口（路线图） ===== */
+.imp-lead { font-size: 12px; color: var(--dim); line-height: 1.75; margin: 0 0 12px; }
+.imp-drop { display: flex; flex-direction: column; align-items: center; gap: 5px; padding: 20px 12px; border: 1.5px dashed var(--line2); border-radius: 10px; background: #10171f; opacity: .78; }
+.imp-drop svg { width: 22px; height: 22px; color: var(--accent); }
+.imp-drop b { font-size: 12.5px; color: var(--ink2); font-weight: 600; }
+.imp-drop span { font-size: 11px; color: var(--dim); }
+.imp-h { font-size: 11px; color: var(--dim); font-weight: 600; letter-spacing: .6px; margin: 14px 0 8px; }
+.imp-road { margin: 0; padding-left: 18px; }
+.imp-road li { font-size: 12px; color: var(--ink2); line-height: 1.6; margin-bottom: 9px; }
+.imp-road li b { display: block; font-weight: 600; color: var(--ink); }
+.imp-road li span { color: var(--dim); font-size: 11.5px; }
+.imp-foot { font-size: 11px; color: var(--dim); border-top: 1px solid var(--line); padding-top: 8px; margin: 12px 0 0; }

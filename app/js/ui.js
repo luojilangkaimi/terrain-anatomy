@@ -495,7 +495,7 @@
     var pad = 48, top = 104, side = 360, W = pad + mw + pad + side + pad, H = Math.max(top + mh + 70, 900);
     var cv = document.createElement('canvas'); cv.width = W; cv.height = H; var g = cv.getContext('2d');
     g.fillStyle = '#f6f4ef'; g.fillRect(0, 0, W, H);
-    g.fillStyle = '#16202a'; g.font = '700 30px system-ui, "Microsoft YaHei", sans-serif'; g.fillText('山体CT · ' + m.name, pad, 52);
+    g.fillStyle = '#16202a'; g.font = '700 30px system-ui, "Microsoft YaHei", sans-serif'; g.fillText('地形解剖师 · ' + m.name, pad, 52);
     g.fillStyle = '#5b6672'; g.font = '16px system-ui, "Microsoft YaHei", sans-serif';
     g.fillText(LAYER_NAME[M.layer] + '图 · ' + m.width + '×' + m.height + ' 分析栅格 · ' + new Date().toLocaleString('zh-CN'), pad, 80);
     var mx = pad, my = top;
@@ -550,7 +550,7 @@
     img.onload = function () {
       var W = img.width, top = 70, cv = document.createElement('canvas'); cv.width = W; cv.height = img.height + top;
       var g = cv.getContext('2d'); g.fillStyle = '#0b0f14'; g.fillRect(0, 0, W, cv.height); g.drawImage(img, 0, top);
-      g.fillStyle = '#e8eef3'; g.font = '700 26px system-ui, "Microsoft YaHei"'; g.fillText('山体CT · 三维沙盘 · ' + m.name, 24, 40);
+      g.fillStyle = '#e8eef3'; g.font = '700 26px system-ui, "Microsoft YaHei"'; g.fillText('地形解剖师 · 三维沙盘 · ' + m.name, 24, 40);
       g.fillStyle = '#8b98a5'; g.font = '14px system-ui, "Microsoft YaHei"'; g.fillText('垂直夸大 ×' + $('#ve3d').value + ' · 表面：' + ($('#drapeSel').value ? LAYER_NAME[App.map.layer] : '高程色带') + ' · ' + new Date().toLocaleString('zh-CN'), 24, 62);
       download(cv.toDataURL('image/png'), '三维沙盘_' + App.aoi + '.png');
     };
